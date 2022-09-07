@@ -1,0 +1,403 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: systems-dev-ns
+  name: elasticsearch-config
+  labels:
+    app: elasticsearch-node
+    role: master
+data:
+  elasticsearch.yml: |-
+    cluster.name: ${cluster.name}
+    node.name: ${node.name}
+    discovery.seed_hosts: ${discovery.seed_hosts}
+    cluster.initial_master_nodes: ${cluster.initial_master_nodes}
+    network.host: 0.0.0.0
+    xpack.security.enabled: false
+    xpack.monitoring.enabled: true
+    xpack.monitoring.collection.enabled: true
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: elasticsearch-hap
+  namespace: systems-dev-ns
+spec:
+  scaleTargetRef:
+    apiVersion: app/v1
+    kind: Deployment
+    name: elasticsearch-node
+  minReplicas: 3
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-node
+  namespace: systems-dev-ns
+spec:
+  selector:
+    app: elasticsearch-node
+  type: NodePort
+  ports:
+    - name: serving
+      protocol: TCP
+      port: 9200
+    - name: node-to-node
+      protocol: TCP
+      port: 9300
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-node
+  labels:
+    app: elasticsearch-node
+    role: master
+  namespace: systems-dev-ns
+spec:
+  serviceName: elasticsearch-node
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elasticsearch-node
+      role: master
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-node
+        role: master
+    spec:
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 4Gi
+              memory: 8Gi
+            requests:
+              cpu: 2Gi
+              memory: 4Gi
+          ports:
+            - containerPort: 9200
+              name: rest
+              protocol: TCP
+            - containerPort: 9300
+              name: inter-node
+              protocol: TCP
+          env:
+            - name: cluster.name
+              value: elasticsearch-cluster
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: discovery.seed_hosts
+              value: "elasticsearch-node"
+            - name: cluster.initial_master_nodes
+              value: "elasticsearch-node-0,\
+                elasticsearch-node-1,\
+                elasticsearch-node-2"
+            - name: ES_JAVA_OPTS
+              value: "-Xms2048m -Xmx2048m"
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /var/lib/elasticsearch
+      initContainers:
+        - name: fix-permissions
+          image: busybox:1.32.0-musl
+          imagePullPolicy: Always
+          command:
+            ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /usr/share/elasticsearch/data
+        - name: increase-vm-max-map
+          image: busybox:1.32.0-musl
+          imagePullPolicy: Always
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+        - name: increase-fd-ulimit
+          image: busybox:1.32.0-musl
+          imagePullPolicy: Always
+          command: ["sh", "-c", "ulimit -n 65536"]
+          securityContext:
+            privileged: true
+  volumeClaimTemplates:
+    - metadata:
+        name: persistent-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: ebs-claim
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: systems-dev-ns
+  name: kibana-config
+  labels:
+    app: kibana
+    role: master
+data:
+  kibana.yml: |-
+    elasticsearch:
+      hosts: ${ELASTICSEARCH_HOSTS}
+      username: minsoub@bithumbsystems.com
+      password: wjdalstjq1!
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kibana-hpa
+  namespace: systems-dev-ns
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kibana-node
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 60
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-service
+  namespace: systems-dev-ns
+spec:
+  selector:
+    app: kibana
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 5601
+      targetPort: 5601
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: systems-dev-ns
+  labels:
+    app: kibana
+    role: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+      role: master
+  template:
+    metadata:
+      labels:
+        app: kibana
+        role: master
+    spec:
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:7.12.0
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 3Gi
+              memory: 6Gi
+            requests:
+              cpu: 2Gi
+              memory: 4Gi
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://elasticsearch-node:9200
+          ports:
+            - containerPort: 5601
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ebs-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-sc
+  resources:
+    requests:
+      storage: 40Gi
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+    version: v1
+    kubernetes.io/cluster-service: "true"
+spec:
+  selector:
+    matchLabels:
+      k8s-app: fluentd-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: fluentd-logging
+        version: v1
+        kubernetes.io/cluster-service: "true"
+    spec:
+      serviceAccount: fluentd
+      serviceAccountName: fluentd
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      initContainers:
+        - name: config-fluentd
+          image: busybox
+          imagePullPolicy: Always
+          command: ["/bin/sh","-c"]
+          args:
+            - cp /fluentd/etc2/fluent.conf /fluentd/etc/fluent.conf;
+              cp /fluentd/etc2/kubernetes.conf /fluentd/etc/kubernetes.conf;
+          volumeMounts:
+            - name: config-path
+              mountPath: /fluentd/etc
+            - name: config-source
+              mountPath: /fluentd/etc2
+      containers:
+        - name: fluentd
+          image: fluent/fluentd-kubernetes-daemonset:v1.3.0-debian-elasticsearch
+          env:
+            - name: FLUENT_ELASTICSEARCH_HOST
+              value: "elasticsearch-node.systems-dev-ns.svc.cluster.local"
+            - name: FLUENT_ELASTICSEARCH_PORT
+              value: "9200"
+            - name: FLUENT_ELASTICSEARCH_SCHEME
+              value: "http"
+            - name: FLUENT_UID
+              value: "0"
+          resources:
+            limits:
+              memory: 2048Mi
+            requests:
+              cpu: 1024Mm
+              memory: 2048Mi
+          volumeMounts: 
+            - name: varlog
+              mountPath: /app/log
+            - name: dockercontainerlogdirectory
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: config-path
+              mountPath: /fluentd/etc
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /app/log
+        - name: dockercontainerlogdirectory
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: config-source
+          configMap:
+            name: fluentd-config
+        - name: config-path
+          emptyDir: {} 
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+    version: v1
+    kubernetes.io/cluster-service: "true"
+data:
+  fluent.conf: |
+    #@include systemd.conf
+    @include kubernetes.conf
+    @include kubernetes2.conf
+    <match **>
+      @type elasticsearch
+      @id out_es
+      @log_level info
+      include_tag_key true
+      host elasticsearch-node.systems-dev-ns.svc.cluster.local
+      port 9200
+      scheme "#{ENV['FLUENT_ELASTICSEARCH_SCHEME'] || 'http'}"
+      ssl_verify "#{ENV['FLUENT_ELASTICSEARCH_SSL_VERIFY'} || 'true'}"
+      reoload_connections "#{ENV['FLUENT_ELASTICSEARCH_RELOAD_CONNECTIONS'] || 'true'}"
+      logstash_prefix "#{ENV['FLUENT_ELASTICSEARCH_LOGSTASH_PREFIX'] || 'logstash'}"
+      logstash_format true
+      type_name fluentd
+      buffer_chunk_limit 2M
+      buffer_queue_limit 32
+      flush_interval 5s
+      max_retry_wait 30
+      disable_retry_limit
+      num_threads 8
+    </match>
+  kubernetes.conf: |
+    <match fluent.**>
+      @type null
+    </match>
+    <source>
+      @type tail
+      @id in_tail_container_logs
+      path "/app/log/spring.log"
+      pos_file "/app/log/fluentd-containers.log.pos"
+      tag "kubernetes.*"
+      read_from_head true
+      <parse>
+         @type "regexp"
+         expression ^(?<logtime>[^\]*) (?<loglevel>\w+) (?<process_id>\d+) --- \[(?<thread_name>[^\]]*)\] (?<logger_name>[^\]]*)  : (?<log_text>[^\]]*)
+         time_format "%Y-%m-%dT%H:%M:%S.% NZ"
+         time_type string
+      </parse>
+    </source>
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: fluentd
+  namespace: kube-system
+rules:
+  - apiGroups:
+    - ""
+      resources:
+        - pods
+        - namespaces
+      verbs:
+        - get
+        - list
+        - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: fluentd
+roleRef:
+  kind: ClusterRole
+  name: fluentd
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: fluentd
+    namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluentd
+  namespace: kube-system

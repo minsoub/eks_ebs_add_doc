@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-node
+  namespace: systems-dev-ns
+spec:
+  selector:
+    app: elasticsearch-node
+  type: NodePort
+  ports:
+    - name: serving
+      protocol: TCP
+      port: 9200
+      nodePort: 32000
+    - name: node-to-node
+      protocol: TCP
+      port: 9300
+      nodePort: 32001
+---
+

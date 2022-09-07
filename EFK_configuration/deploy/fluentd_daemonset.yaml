@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+    version: v1
+    kubernetes.io/cluster-service: "true"
+spec:
+  selector:
+    matchLabels:
+      k8s-app: fluentd-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: fluentd-logging
+        version: v1
+        kubernetes.io/cluster-service: "true"
+    spec:
+      serviceAccount: fluentd
+      serviceAccountName: fluentd
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      initContainers:
+        - name: config-fluentd
+          image: busybox
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          args:
+            - cp /fluentd/etc2/fluent.conf /fluentd/etc/fluent.conf;
+              cp /fluentd/etc2/kubernetes.conf /fluentd/etc/kubernetes.conf;
+          volumeMounts:
+            - name: config-path
+              mountPath: /fluentd/etc
+            - name: config-source
+              mountPath: /fluentd/etc2
+      containers:
+        - name: fluentd
+          image: fluent/fluentd-kubernetes-daemonset:v1.3.0-debian-elasticsearch
+          env:
+            - name: FLUENT_ELASTICSEARCH_HOST
+              value: "elasticsearch-node.systems-dev-ns.svc.cluster.local"
+            - name: FLUENT_ELASTICSEARCH_PORT
+              value: "9200"
+            - name: FLUENT_ELASTICSEARCH_SCHEME
+              value: "http"
+            - name: FLUENT_UID
+              value: "0"
+          resources:
+            limits:
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - name: varlog
+              mountPath: /app/log
+            - name: dockercontainerlogdirectory
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: config-path
+              mountPath: /fluentd/etc
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /app/log
+        - name: dockercontainerlogdirectory
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: config-source
+          configMap:
+            name: fluentd-config
+        - name: config-path
+          emptyDir: {}

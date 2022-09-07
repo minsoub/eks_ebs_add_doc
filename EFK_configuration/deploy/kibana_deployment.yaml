@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: systems-dev-ns
+  labels:
+    app: kibana
+    role: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+      role: master
+  template:
+    metadata:
+      labels:
+        app: kibana
+        role: master
+    spec:
+      initContainers:
+        - name: config-kibana
+          image: busybox
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          args:
+            - cp /kibana/config/kibana.yml /usr/share/kibana/config/kibana.yml;
+          volumeMounts:
+            - name: config-path
+              mountPath: /usr/share/kibana/config
+            - name: config-source
+              mountPath: /kibana/config
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:7.17.0
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 3000m
+              memory: 6Gi
+            requests:
+              cpu: 2000m
+              memory: 4Gi
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://elasticsearch-node:9200
+          ports:
+            - containerPort: 5601
+          volumeMounts:
+            - name: config-path
+              mountPath: /usr/share/kibana/config
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: config-source
+          configMap:
+            name: kibana-config
+        - name: config-path
+          emptyDir: {}

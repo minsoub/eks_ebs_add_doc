@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: systems-dev-ns
+  name: elasticsearch-config
+  labels:
+    app: elasticsearch-node
+    role: master
+data:
+  elasticsearch.yml: |-
+    cluster.name: ${cluster.name}
+    node.name: ${node.name}
+    discovery.seed_hosts: ${discovery.seed_hosts}
+    cluster.initial_master_nodes: ${cluster.initial_master_nodes}
+    network.host: 0.0.0.0
+    xpack.security.enabled: true
+    xpack.security.authc.api_key.enabled: true
+    xpack.monitoring.enabled: true
+    xpack.monitoring.collection.enabled: true

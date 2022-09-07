@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: systems-dev-ns
+  name: kibana-config
+  labels:
+    app: kibana
+    role: master
+data:
+  kibana.yml: |-
+    # Default Kibana configuration for docker target
+    server.host: "0.0.0.0"
+    server.shutdownTimeout: "5s"
+    elasticsearch.hosts: [ "http://elasticsearch-node:9200" ]

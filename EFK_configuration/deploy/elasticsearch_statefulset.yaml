@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-node
+  labels:
+    app: elasticsearch-node
+    role: master
+  namespace: systems-dev-ns
+spec:
+  serviceName: elasticsearch-node
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elasticsearch-node
+      role: master
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-node
+        role: master
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 2048m
+              memory: 8Gi
+            requests:
+              cpu: 2048m
+              memory: 4Gi
+          ports:
+            - containerPort: 9200
+              name: rest
+              protocol: TCP
+            - containerPort: 9300
+              name: inter-node
+              protocol: TCP
+          env:
+            - name: cluster.name
+              value: elasticsearch-cluster
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: discovery.seed_hosts
+              value: "elasticsearch-node"
+            - name: cluster.initial_master_nodes
+              value: "elasticsearch-node-0,\
+                elasticsearch-node-1,\
+                elasticsearch-node-2"
+            - name: ES_JAVA_OPTS
+              value: "-Xms2048m -Xmx2048m"
+            - name: xpack.security.enabled
+              value: "false"
+            - name: xpack.security.transport.ssl.enabled
+              value: "false"
+            - name: network.host
+              value: "0.0.0.0"
+          securityContext:
+            privileged: true
+            runAsUser: 1000
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /usr/share/elasticsearch/data
+      initContainers:
+        - name: fix-permissions
+          image: busybox:1.32.0-musl
+          imagePullPolicy: Always
+          command:
+            ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: persistent-storage
+              mountPath: /usr/share/elasticsearch/data
+        - name: increase-vm-max-map
+          image: busybox:1.32.0-musl
+          imagePullPolicy: Always
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+        - name: increase-fd-ulimit
+          image: busybox:1.32.0-musl
+          imagePullPolicy: Always
+          command: ["sh", "-c", "ulimit -n 65536"]
+          securityContext:
+            privileged: true
+      volumes:
+        - name: config-source
+          configMap:
+            name: elasticsearch-config
+  volumeClaimTemplates:
+    - metadata:
+        name: persistent-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: ebs-sc
+        resources:
+          requests:
+            storage: 5Gi
+    - metadata:
+        name: config-path
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: ebs-sc
+        resources:
+          requests:
+            storage: 50Mi
