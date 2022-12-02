@@ -45,7 +45,7 @@ data:
        read_from_head true
        <parse>
          @type regexp
-         expression /^\[(?<logtime>[^\]]*)\]\[(?<thread_name>[^\]]*)\] (?<log_level>[^ ]*) (?<logger_name>[^ ]*[^  ]*)  - (?<log_text>.*)$/
+         expression /^\[(?<logtime>[^\]]*)\]\[(?<thread_name>[^\]]*)\] (?<log_level>[^ ]*)  (?<logger_name>[^ ]*)  - (?<log_text>.*)$/
          time_format "%Y-%m-%d %H:%M:%S.%3N"
          time_type string
        </parse>

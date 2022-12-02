@@ -1,0 +1,20 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: grafana-sc
+  namespace: systems-dev-ns
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: systems-dev-ns
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: grafana-sc
+  resources:
+    requests:
+      storage: 10Gi

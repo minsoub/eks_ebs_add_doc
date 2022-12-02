@@ -1074,5 +1074,13 @@ kube-root-ca.crt                          1      100d
 - DaemonSet 생성
 
 ```
+jms@jeongminseob-Mac-Pro  ~/Documents/eks_ebs_add_doc/EFK_configuration/deploy  kubectl apply -f fluentd_daemonset.yaml
+daemonset.apps/fluentd created
 
+jms@jeongminseob-Mac-Pro  ~/Documents/eks_ebs_add_doc/EFK_configuration/deploy  kubectl get daemonset -n kube-system
+NAME           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+aws-node       8         8         8       8            8           <none>                   100d
+ebs-csi-node   8         8         8       8            8           kubernetes.io/os=linux   34h
+fluentd        8         8         0       8            0           <none>                   46s
+kube-proxy     8         8         8       8            8           <none>                   100d
 ```
