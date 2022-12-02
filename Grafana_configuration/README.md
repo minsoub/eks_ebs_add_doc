@@ -32,3 +32,6 @@ systems-mng-web-ingress            <none>   *       k8s-systemsd-systemsm-5b1ad0
 http://k8s-systemsd-grafanai-08240a1466-1183650272.ap-northeast-2.elb.amazonaws.com
 ID : admin
 Pass : admin => Wjdalstjq1!
+
+ID : guest
+Pass : wjdalstjq1!
