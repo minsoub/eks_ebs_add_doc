@@ -1,0 +1,167 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": "iam:CreateServiceLinkedRole",
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "iam:AWSServiceName": [
+            "rds.amazonaws.com",
+            "rds.application-autoscaling.amazonaws.com"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:DeleteParameter",
+        "pi:*",
+        "ssm:DeleteParameters"
+      ],
+      "Resource": [
+        "arn:aws:pi:*:*:metrics/rds/*",
+        "arn:aws:ssm:*:807380035085:parameter/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": [
+        "rds:*",
+        "cloudwatch:DeleteAlarms",
+        "ec2:DescribeCoipPools",
+        "ses:ListContactLists",
+        "ec2:DescribeInternetGateways",
+        "ec2:DescribeLocalGatewayRouteTableVpcAssociations",
+        "logs:GetLogEvents",
+        "ec2:DescribeAccountAttributes",
+        "ses:PutAccountSendingAttributes",
+        "ses:ListDeliverabilityTestReports",
+        "ses:GetSuppressedDestination",
+        "application-autoscaling:RegisterScalableTarget",
+        "outposts:GetOutpostInstanceTypes",
+        "application-autoscaling:DeleteScalingPolicy",
+        "s3-object-lambda:*",
+        "cloudwatch:GetMetricStatistics",
+        "ses:DeleteSuppressedDestination",
+        "ses:GetAccount",
+        "ses:GetBlacklistReports",
+        "application-autoscaling:DescribeScalingPolicies",
+        "cloudwatch:DescribeAlarms",
+        "application-autoscaling:PutScalingPolicy",
+        "ec2:DescribeSubnets",
+        "ses:PutAccountDedicatedIpWarmupAttributes",
+        "ses:CreateImportJob",
+        "ses:PutDeliverabilityDashboardOption",
+        "ses:GetDeliverabilityDashboardOptions",
+        "ses:ListCustomVerificationEmailTemplates",
+        "logs:DescribeLogStreams",
+        "ses:PutAccountSuppressionAttributes",
+        "ses:GetDomainDeliverabilityCampaign",
+        "sns:ListTopics",
+        "ec2:DescribeVpcAttribute",
+        "ses:ListDedicatedIpPools",
+        "ses:ListEmailIdentities",
+        "ses:ListConfigurationSets",
+        "ses:ListDomainDeliverabilityCampaigns",
+        "sns:Publish",
+        "ec2:DescribeAvailabilityZones",
+        "ec2:CreateNetworkAcl",
+        "application-autoscaling:DescribeScalingActivities",
+        "ec2:DescribeLocalGatewayRouteTables",
+        "sqs:ListQueues",
+        "ec2:DescribeLocalGatewayRouteTablePermissions",
+        "s3:*",
+        "ec2:GetCoipPoolUsage",
+        "application-autoscaling:DescribeScalableTargets",
+        "sns:ListSubscriptions",
+        "ec2:DescribeLocalGateways",
+        "ses:PutSuppressedDestination",
+        "support:*",
+        "ec2:DescribeSecurityGroups",
+        "cloudwatch:PutMetricAlarm",
+        "ses:ListImportJobs",
+        "ses:ListEmailTemplates",
+        "ses:PutDedicatedIpWarmupAttributes",
+        "ses:ListSuppressedDestinations",
+        "ses:PutAccountDetails",
+        "ec2:DescribeVpcs",
+        "ses:GetDedicatedIp",
+        "ec2:CreateNetworkAclEntry",
+        "application-autoscaling:DeregisterScalableTarget"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor3",
+      "Effect": "Allow",
+      "Action": "sqs:*",
+      "Resource": "arn:aws:sqs:*:807380035085:*"
+    },
+    {
+      "Sid": "VisualEditor4",
+      "Effect": "Allow",
+      "Action": "ses:*",
+      "Resource": [
+        "arn:aws:ses:*:807380035085:deliverability-test-report/*",
+        "arn:aws:ses:*:807380035085:identity/*",
+        "arn:aws:ses:*:807380035085:import-job/*",
+        "arn:aws:ses:*:807380035085:contact-list/*",
+        "arn:aws:ses:*:807380035085:custom-verification-email-template/*",
+        "arn:aws:ses:*:807380035085:template/*",
+        "arn:aws:ses:*:807380035085:dedicated-ip-pool/*",
+        "arn:aws:ses:*:807380035085:configuration-set/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor5",
+      "Effect": "Allow",
+      "Action": "ses:*",
+      "Resource": [
+        "arn:aws:ses:*:807380035085:import-job/*",
+        "arn:aws:ses:*:807380035085:deliverability-test-report/*",
+        "arn:aws:ses:*:807380035085:identity/*",
+        "arn:aws:ses:*:807380035085:dedicated-ip-pool/*",
+        "arn:aws:ses:*:807380035085:contact-list/*",
+        "arn:aws:ses:*:807380035085:custom-verification-email-template/*",
+        "arn:aws:ses:*:807380035085:configuration-set/*",
+        "arn:aws:ses:*:807380035085:template/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor6",
+      "Effect": "Allow",
+      "Action": "ses:*",
+      "Resource": [
+        "arn:aws:ses:*:807380035085:identity/*",
+        "arn:aws:ses:*:807380035085:deliverability-test-report/*",
+        "arn:aws:ses:*:807380035085:import-job/*",
+        "arn:aws:ses:*:807380035085:contact-list/*",
+        "arn:aws:ses:*:807380035085:dedicated-ip-pool/*",
+        "arn:aws:ses:*:807380035085:custom-verification-email-template/*",
+        "arn:aws:ses:*:807380035085:configuration-set/*",
+        "arn:aws:ses:*:807380035085:template/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor7",
+      "Effect": "Allow",
+      "Action": "ses:*",
+      "Resource": [
+        "arn:aws:ses:*:807380035085:import-job/*",
+        "arn:aws:ses:*:807380035085:deliverability-test-report/*",
+        "arn:aws:ses:*:807380035085:dedicated-ip-pool/*",
+        "arn:aws:ses:*:807380035085:contact-list/*",
+        "arn:aws:ses:*:807380035085:identity/*",
+        "arn:aws:ses:*:807380035085:custom-verification-email-template/*",
+        "arn:aws:ses:*:807380035085:configuration-set/*",
+        "arn:aws:ses:*:807380035085:template/*"
+      ]
+    }
+  ]
+}

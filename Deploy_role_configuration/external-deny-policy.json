@@ -1,0 +1,40 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "codecommit:*"
+      ],
+      "Resource": "arn:aws:codecommit:*:807380035085:*",
+      "Condition": {
+        "StringLike": {
+          "aws:Referer": "http://devops.bithumbsystems.com/*"
+        },
+        "StringEquals": {
+          "aws:SourceVpc": "vpc-0c46c80eb059ca036"
+        }
+      }
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "NotIpAddress": {
+          "aws:SourceIp": [
+            "112.220.22.0/24",
+            "125.7.189.0/24",
+            "52.79.253.29/24",
+            "52.79.253.0/24"
+          ]
+        },
+        "StringNotEquals": {
+          "aws:SourceVpc": "vpc-0c46c80eb059ca036"
+        }
+      }
+    }
+  ]
+}

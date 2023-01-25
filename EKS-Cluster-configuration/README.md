@@ -1,10 +1,15 @@
 # EKS Cluster 구축
 
+EKS Cluster를 생성하기 위해 EKS Cluster Role과 Worker Node Role을 생성해야 한다. 
+- EKS Cluster 생성 (정책 연결)
+- EKS Worker Node 생성 (정책 연결)
+
+
 ## EKS Cluster Role
 - AmazonEKSClusterPolicy
-- AmazonEKSServicePolicy 
+- AmazonEKSServicePolicy  or **AmazonEKSVPCResourceController**
 eks.amazonaws.com에 대한 AssumeRole을 위한 Role을 생성하고 위의 Policy를 attache 한다.
-
+- role name : **systems-eks-cluster-role**
 ```json
 {
   "Version": "2012-10-17",
@@ -29,7 +34,19 @@ eks.amazonaws.com에 대한 AssumeRole을 위한 Role을 생성하고 위의 Pol
 - ELB 구성 했을 때 자동적으로 DNS 매핑 구성을 위한 Route53 Policy
 - HPA, AutoScaller와 같은 정책을 수행하기 위한 EKS-AutoScailer
 - ALB 연동을 위한 ALBIngreddControllerAMPolicy
-#### AutoScailer Policy
+
+- Worker Node Role : **systems-eks-worker-node-role**
+  - 관리형 Policy
+    - AmazonEKSClusterPolicy
+    - AmazonEKSWorkerNodePolicy
+    - AamzonEC2ContainerRegistryReadOnly
+    - CloudWatchAgentServerPolicy
+    - CloudWatchLogsFullAccess
+    - AmazonEKS_CNI_Policy
+    - AmazonEKS_CNI_Policy
+    - AmazonRoute53FullAccess
+  - 사용자 Policy
+    - systems-eks-worker-node-autoscailer-policy
 ```json
 {
   "Version": "2012-10-17",
@@ -50,7 +67,7 @@ eks.amazonaws.com에 대한 AssumeRole을 위한 Role을 생성하고 위의 Pol
   ]
 }
 ```
-#### Alb IngressController Policy
+  - systems-eks-worker-node-albingresscontroller-policy
 ```json
 {
    "Version": "2012-10-17",
@@ -169,6 +186,272 @@ eks.amazonaws.com에 대한 AssumeRole을 위한 Role을 생성하고 위의 Pol
         "Resource": "*"
     }
   ]
+}
+```
+- eks-cluster-worker-node-ses-policy
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "ses:SendEmail",
+            "Resource": [
+                "arn:aws:ses:*:807380035085:identity/*",
+                "arn:aws:ses:*:807380035085:configuration-set/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+                "ses:CreateReceiptRule",
+                "ses:SetIdentityMailFromDomain",
+                "ses:DeleteReceiptFilter",
+                "ses:VerifyEmailIdentity",
+                "ses:CreateReceiptFilter",
+                "ses:CreateConfigurationSetTrackingOptions",
+                "ses:ListReceiptFilters",
+                "ses:UpdateAccountSendingEnabled",
+                "ses:DeleteConfigurationSetEventDestination",
+                "ses:GetIdentityMailFromDomainAttributes",
+                "ses:DeleteVerifiedEmailAddress",
+                "ses:DeleteIdentityPolicy",
+                "ses:ListContactLists",
+                "ses:GetIdentityDkimAttributes",
+                "ses:UpdateTemplate",
+                "ses:DescribeReceiptRuleSet",
+                "ses:ListReceiptRuleSets",
+                "ses:PutAccountSendingAttributes",
+                "ses:DeleteConfigurationSetTrackingOptions",
+                "ses:GetTemplate",
+                "ses:UpdateConfigurationSetTrackingOptions",
+                "ses:SetIdentityNotificationTopic",
+                "ses:SetIdentityDkimEnabled",
+                "ses:ListDeliverabilityTestReports",
+                "ses:GetSuppressedDestination",
+                "ses:CreateConfigurationSet",
+                "ses:DeleteReceiptRuleSet",
+                "ses:PutIdentityPolicy",
+                "ses:CreateTemplate",
+                "ses:ReorderReceiptRuleSet",
+                "ses:GetIdentityVerificationAttributes",
+                "ses:DescribeReceiptRule",
+                "ses:DeleteSuppressedDestination",
+                "ses:GetAccount",
+                "ses:GetBlacklistReports",
+                "ses:CreateReceiptRuleSet",
+                "ses:CreateConfigurationSetEventDestination",
+                "ses:ListVerifiedEmailAddresses",
+                "ses:SetIdentityFeedbackForwardingEnabled",
+                "ses:PutAccountDedicatedIpWarmupAttributes",
+                "ses:UpdateConfigurationSetEventDestination",
+                "ses:ListTemplates",
+                "ses:CreateImportJob",
+                "ses:PutDeliverabilityDashboardOption",
+                "ses:GetDeliverabilityDashboardOptions",
+                "ses:ListCustomVerificationEmailTemplates",
+                "ses:DeleteCustomVerificationEmailTemplate",
+                "ses:TestRenderTemplate",
+                "ses:GetIdentityPolicies",
+                "ses:GetSendQuota",
+                "ses:DescribeConfigurationSet",
+                "ses:DeleteConfigurationSet",
+                "ses:DeleteReceiptRule",
+                "ses:PutAccountSuppressionAttributes",
+                "ses:GetDomainDeliverabilityCampaign",
+                "ses:VerifyDomainDkim",
+                "ses:VerifyDomainIdentity",
+                "ses:CloneReceiptRuleSet",
+                "ses:ListDedicatedIpPools",
+                "ses:ListEmailIdentities",
+                "ses:SetIdentityHeadersInNotificationsEnabled",
+                "ses:ListConfigurationSets",
+                "ses:ListDomainDeliverabilityCampaigns",
+                "ses:ListIdentities",
+                "ses:PutConfigurationSetDeliveryOptions",
+                "ses:VerifyEmailAddress",
+                "ses:UpdateReceiptRule",
+                "ses:UpdateConfigurationSetReputationMetricsEnabled",
+                "ses:GetCustomVerificationEmailTemplate",
+                "ses:GetSendStatistics",
+                "ses:GetIdentityNotificationAttributes",
+                "ses:UpdateConfigurationSetSendingEnabled",
+                "ses:ListIdentityPolicies",
+                "ses:SetActiveReceiptRuleSet",
+                "ses:PutSuppressedDestination",
+                "ses:CreateCustomVerificationEmailTemplate",
+                "ses:DescribeActiveReceiptRuleSet",
+                "ses:GetAccountSendingEnabled",
+                "ses:UpdateCustomVerificationEmailTemplate",
+                "ses:DeleteTemplate",
+                "ses:SetReceiptRulePosition",
+                "ses:ListImportJobs",
+                "ses:ListEmailTemplates",
+                "ses:PutDedicatedIpWarmupAttributes",
+                "ses:ListSuppressedDestinations",
+                "ses:PutAccountDetails",
+                "ses:GetDedicatedIp",
+                "ses:DeleteIdentity"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": "ses:*",
+            "Resource": [
+                "arn:aws:ses:*:807380035085:identity/*",
+                "arn:aws:ses:*:807380035085:configuration-set/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor3",
+            "Effect": "Allow",
+            "Action": "ses:*",
+            "Resource": [
+                "arn:aws:ses:*:807380035085:identity/*",
+                "arn:aws:ses:*:807380035085:configuration-set/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor4",
+            "Effect": "Allow",
+            "Action": "ses:SendRawEmail",
+            "Resource": [
+                "arn:aws:ses:*:807380035085:identity/*",
+                "arn:aws:ses:*:807380035085:configuration-set/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor5",
+            "Effect": "Allow",
+            "Action": "ses:*",
+            "Resource": [
+                "arn:aws:ses:*:807380035085:identity/*",
+                "arn:aws:ses:*:807380035085:configuration-set/*"
+            ]
+        }
+    ]
+}
+```
+- systems-eks-full-policy
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ses:*",
+                "eks:ListClusters",
+                "eks:DescribeAddonVersions",
+                "sqs:*",
+                "eks:RegisterCluster",
+                "eks:CreateCluster"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": "eks:*",
+            "Resource": [
+                "arn:aws:eks:*:807380035085:cluster/*",
+                "arn:aws:eks:*:807380035085:fargateprofile/*/*/*",
+                "arn:aws:eks:*:807380035085:nodegroup/*/*/*",
+                "arn:aws:eks:*:807380035085:identityproviderconfig/*/*/*/*",
+                "arn:aws:eks:*:807380035085:addon/*/*/*"
+            ]
+        }
+    ]
+}
+```
+- codebuild-ecs-task-execute-policy
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "kms:DescribeCustomKeyStores",
+                "kms:ListKeys",
+                "kms:DeleteCustomKeyStore",
+                "kms:GenerateRandom",
+                "kms:UpdateCustomKeyStore",
+                "kms:ListAliases",
+                "kms:DisconnectCustomKeyStore",
+                "kms:CreateKey",
+                "kms:ConnectCustomKeyStore",
+                "kms:CreateCustomKeyStore"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": "arn:aws:s3:::*/*"
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketAcl"
+            ],
+            "Resource": "arn:aws:s3:::*"
+        },
+        {
+            "Sid": "VisualEditor3",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter"
+            ],
+            "Resource": "arn:aws:ssm:*:807380035085:parameter/*"
+        },
+        {
+            "Sid": "VisualEditor4",
+            "Effect": "Allow",
+            "Action": "kms:*",
+            "Resource": [
+                "arn:aws:kms:*:807380035085:alias/*",
+                "arn:aws:kms:*:807380035085:key/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor5",
+            "Effect": "Allow",
+            "Action": "ssm:*",
+            "Resource": [
+                "arn:aws:s3:::*",
+                "arn:aws:ssm:*:807380035085:document/*",
+                "arn:aws:ecs:*:807380035085:task/*",
+                "arn:aws:ssm:*:807380035085:servicesetting/*",
+                "arn:aws:ssm:*:807380035085:resource-data-sync/*",
+                "arn:aws:ec2:*:807380035085:instance/*",
+                "arn:aws:ssm:*:807380035085:opsmetadata/*",
+                "arn:aws:ssm:*:807380035085:automation-execution/*",
+                "arn:aws:ssm:*:807380035085:association/*",
+                "arn:aws:ssm:*:807380035085:automation-definition/*:*",
+                "arn:aws:ssm:*:807380035085:patchbaseline/*",
+                "arn:aws:ssm:*:807380035085:session/*",
+                "arn:aws:ssm:*:807380035085:managed-instance/*",
+                "arn:aws:ssm:*:807380035085:parameter/*",
+                "arn:aws:ssm:*:807380035085:maintenancewindow/*",
+                "arn:aws:ssm:*:807380035085:opsitem/*"
+            ]
+        }
+    ]
 }
 ```
 

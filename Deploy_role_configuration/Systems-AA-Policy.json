@@ -1,0 +1,232 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "acm:DeleteCertificate",
+        "acm:AddTagsToCertificate",
+        "ssm:GetParameters",
+        "ssm:GetParameter",
+        "codebuild:CreateProject",
+        "ssm:PutParameter",
+        "ssm:RemoveTagsFromResource",
+        "ssm:AddTagsToResource",
+        "ssm:ListTagsForResource",
+        "ssm:GetServiceSetting",
+        "ssm:GetParametersByPath",
+        "codebuild:DeleteProject",
+        "acm:ImportCertificate"
+      ],
+      "Resource": [
+        "arn:aws:ecs:*:807380035085:task/*/*",
+        "arn:aws:ssm:*:807380035085:parameter/*",
+        "arn:aws:ssm:*:807380035085:servicesetting/*",
+        "arn:aws:codebuild:*:807380035085:project/*",
+        "arn:aws:acm:*:807380035085:certificate/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": [
+        "access-analyzer:ListAnalyzers",
+        "s3:ListAccessPointsForObjectLambda",
+        "s3:PutStorageLensConfiguration",
+        "access-analyzer:CancelPolicyGeneration",
+        "ecs:DescribeTaskDefinition",
+        "ecs:CreateCapacityProvider",
+        "route53-recovery-control-config:ListControlPanels",
+        "access-analyzer:StartPolicyGeneration",
+        "ssm:DescribeParameters",
+        "route53-recovery-readiness:ListReadinessChecks",
+        "ecs:RegisterTaskDefinition",
+        "codebuild:ListProjects",
+        "ecs:ListTaskDefinitions",
+        "access-analyzer:ListPolicyGenerations",
+        "ecs:CreateTaskSet",
+        "s3:PutAccountPublicAccessBlock",
+        "ecs:CreateCluster",
+        "ecr:DescribePullThroughCacheRules",
+        "s3:ListJobs",
+        "codebuild:ListCuratedEnvironmentImages",
+        "ecr:GetAuthorizationToken",
+        "cloudformation:*",
+        "eks:RegisterCluster",
+        "acm-pca:ListCertificateAuthorities",
+        "ecs:PutAccountSetting",
+        "route53resolver:ListFirewallRuleGroupAssociations",
+        "ecs:DeleteAccountSetting",
+        "s3:PutAccessPointPublicAccessBlock",
+        "eks:ListClusters",
+        "s3:CreateJob",
+        "s3:GetAccessPoint",
+        "ecr:CreatePullThroughCacheRule",
+        "ecr:PutRegistryPolicy",
+        "ecr:GetRegistryScanningConfiguration",
+        "ecs:ListServices",
+        "ecs:DeregisterTaskDefinition",
+        "sts:DecodeAuthorizationMessage",
+        "access-analyzer:ValidatePolicy",
+        "eks:DescribeAddonVersions",
+        "ecs:ListClusters",
+        "eks:CreateCluster",
+        "ecs:DiscoverPollEndpoint",
+        "ecr:GetRegistryPolicy",
+        "ecs:PutAccountSettingDefault",
+        "cloudformation:ListStacks",
+        "s3:ListAccessPoints",
+        "ecr:DescribeRegistry",
+        "ecr:PutRegistryScanningConfiguration",
+        "s3:ListMultiRegionAccessPoints",
+        "ecr:DeletePullThroughCacheRule",
+        "s3:ListStorageLensConfigurations",
+        "ecs:ListAccountSettings",
+        "s3:GetAccountPublicAccessBlock",
+        "s3:ListAllMyBuckets",
+        "ecs:ListTaskDefinitionFamilies",
+        "access-analyzer:GetGeneratedPolicy",
+        "compute-optimizer:GetEnrollmentStatus",
+        "ecr:DeleteRegistryPolicy",
+        "ssm:ListAssociations",
+        "ecr:PutReplicationConfiguration"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": [
+        "codebuild:BatchGetProjects",
+        "kms:Decrypt",
+        "ec2:CreateClientVpnRoute",
+        "ec2:ExportClientVpnClientConfiguration",
+        "ec2:RevokeClientVpnIngress",
+        "codebuild:ListBuildsForProject",
+        "codebuild:CreateProject",
+        "ec2:CreateClientVpnEndpoint",
+        "ec2:AuthorizeClientVpnIngress",
+        "ec2:TerminateClientVpnConnections",
+        "kms:Encrypt",
+        "kms:GenerateDataKey",
+        "codebuild:DeleteProject",
+        "codebuild:ListBuildBatchesForProject",
+        "ec2:ApplySecurityGroupsToClientVpnTargetNetwork"
+      ],
+      "Resource": [
+        "arn:aws:ec2:*:807380035085:vpc/*",
+        "arn:aws:ec2:*:807380035085:subnet/*",
+        "arn:aws:ec2:*:807380035085:client-vpn-endpoint/*",
+        "arn:aws:ec2:*:807380035085:security-group/*",
+        "arn:aws:codebuild:*:807380035085:project/*",
+        "arn:aws:kms:*:807380035085:key/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor3",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:PutParameter",
+        "ssm:RemoveTagsFromResource",
+        "ssm:AddTagsToResource",
+        "ssm:ListTagsForResource",
+        "ssm:GetServiceSetting",
+        "ssm:GetParametersByPath",
+        "ssm:GetParameters",
+        "ssm:GetParameter"
+      ],
+      "Resource": [
+        "arn:aws:ecs:*:807380035085:service/*/*",
+        "arn:aws:ecs:*:807380035085:cluster/*",
+        "arn:aws:ecs:*:807380035085:container-instance/*/*",
+        "arn:aws:ecs:*:807380035085:task-set/*/*/*",
+        "arn:aws:ecs:*:807380035085:task-definition/*:*",
+        "arn:aws:ecs:*:807380035085:capacity-provider/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor4",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:CreateStack",
+        "cloudformation:DeleteStack"
+      ],
+      "Resource": [
+        "arn:aws:ecs:*:807380035085:task/*/*",
+        "arn:aws:ssm:*:807380035085:parameter/*",
+        "arn:aws:ssm:*:807380035085:servicesetting/*",
+        "arn:aws:codebuild:*:807380035085:project/*",
+        "arn:aws:kms:*:807380035085:key/*",
+        "arn:aws:cloudformation:*:807380035085:stack/*/*",
+        "arn:aws:acm:*:807380035085:certificate/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor5",
+      "Effect": "Allow",
+      "Action": "ecs:*",
+      "Resource": [
+        "arn:aws:ecs:*:807380035085:service/*/*",
+        "arn:aws:ecs:*:807380035085:container-instance/*/*",
+        "arn:aws:ecs:*:807380035085:cluster/*",
+        "arn:aws:ecs:*:807380035085:task-set/*/*/*",
+        "arn:aws:ecs:*:807380035085:task-definition/*:*",
+        "arn:aws:ecs:*:807380035085:capacity-provider/*",
+        "arn:aws:ecs:*:807380035085:task/*/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor6",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::*/*",
+        "arn:aws:s3::807380035085:accesspoint/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor7",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:us-west-2:807380035085:async-request/mrap/*/*",
+        "arn:aws:s3:::*",
+        "arn:aws:s3:*:807380035085:accesspoint/*",
+        "arn:aws:s3-object-lambda:*:807380035085:accesspoint/*",
+        "arn:aws:s3:*:807380035085:job/*",
+        "arn:aws:s3:*:807380035085:storage-lens/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor8",
+      "Effect": "Allow",
+      "Action": "eks:*",
+      "Resource": [
+        "arn:aws:eks:*:807380035085:cluster/*",
+        "arn:aws:eks:*:807380035085:fargateprofile/*/*/*",
+        "arn:aws:eks:*:807380035085:nodegroup/*/*/*",
+        "arn:aws:eks:*:807380035085:identityproviderconfig/*/*/*/*",
+        "arn:aws:eks:*:807380035085:addon/*/*/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor9",
+      "Effect": "Allow",
+      "Action": "ecr:*",
+      "Resource": "arn:aws:ecr:*:807380035085:repository/*"
+    },
+    {
+      "Sid": "VisualEditor10",
+      "Effect": "Allow",
+      "Action": "access-analyzer:*",
+      "Resource": "arn:aws:access-analyzer:*:807380035085:analyzer/*/archive-rule/*"
+    },
+    {
+      "Sid": "VisualEditor11",
+      "Effect": "Allow",
+      "Action": "access-analyzer:*",
+      "Resource": "arn:aws:access-analyzer:*:807380035085:analyzer/*"
+    }
+  ]
+}
