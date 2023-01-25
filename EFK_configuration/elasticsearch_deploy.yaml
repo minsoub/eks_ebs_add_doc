@@ -148,8 +148,8 @@ data:
   kibana.yml: |-
     elasticsearch:
       hosts: ${ELASTICSEARCH_HOSTS}
-      username: minsoub@bithumbsystems.com
-      password: wjdalstjq1!
+      username: xxxxxxx
+      password: xxxxxxx
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
